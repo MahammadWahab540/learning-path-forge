@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from "sonner";
@@ -8,6 +7,7 @@ interface User {
   email: string;
   firstName: string;
   lastName: string;
+  avatar?: string; // Added avatar property as optional
 }
 
 interface AuthContextType {
@@ -64,7 +64,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         id: '123',
         email,
         firstName: email.split('@')[0],
-        lastName: 'User'
+        lastName: 'User',
+        avatar: '' // Initialize with empty string
       };
       
       const mockToken = 'mock-jwt-token';
@@ -97,7 +98,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         id: '123',
         email,
         firstName,
-        lastName
+        lastName,
+        avatar: '' // Initialize with empty string
       };
       
       const mockToken = 'mock-jwt-token';

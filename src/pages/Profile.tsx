@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from '@/context/AuthContext';
@@ -33,10 +32,11 @@ const Profile = () => {
     { id: '4', title: 'Skill Unlocked', subtitle: 'Completed a full skill path', icon: 'check' }
   ];
   
+  // Updated mockProjects with explicit "Complete" | "In Review" status values
   const mockProjects = [
-    { id: '1', title: 'React Todo App', description: 'A simple todo application built with React', date: '2023-05-15', status: 'Complete', grade: 98 },
-    { id: '2', title: 'Python Data Analysis', description: 'Analyzed a dataset using pandas and matplotlib', date: '2023-06-02', status: 'In Review' },
-    { id: '3', title: 'JavaScript Game', description: 'Built a simple 2D game using vanilla JavaScript', date: '2023-06-20', status: 'Complete', grade: 85 }
+    { id: '1', title: 'React Todo App', description: 'A simple todo application built with React', date: '2023-05-15', status: 'Complete' as const, grade: 98 },
+    { id: '2', title: 'Python Data Analysis', description: 'Analyzed a dataset using pandas and matplotlib', date: '2023-06-02', status: 'In Review' as const },
+    { id: '3', title: 'JavaScript Game', description: 'Built a simple 2D game using vanilla JavaScript', date: '2023-06-20', status: 'Complete' as const, grade: 85 }
   ];
   
   // Filter skills for mastered skills (those with 100% progress)
