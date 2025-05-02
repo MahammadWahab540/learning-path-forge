@@ -10,6 +10,7 @@ import Dashboard from '@/pages/Dashboard';
 import Roadmap from '@/pages/Roadmap';
 import Lesson from '@/pages/Lesson';
 import NotFound from '@/pages/NotFound';
+import Profile from '@/pages/Profile';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -50,6 +51,15 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+      
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <Profile />
           </ProtectedRoute>
         }
       />
