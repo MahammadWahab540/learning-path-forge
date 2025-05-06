@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useLearning } from '@/context/LearningContext';
@@ -312,33 +311,7 @@ const Lesson = () => {
             </TabsContent>
             
             <TabsContent value="chat">
-              <div className="bg-white rounded-lg shadow-md p-6">
-                <div className="text-center mb-8">
-                  <h3 className="text-xl font-bold mb-2">Have Questions?</h3>
-                  <p className="text-gray-500">
-                    Use the chat widget to ask questions about this lesson. Our learning assistant will help you understand concepts better.
-                  </p>
-                </div>
-                
-                <div className="max-w-md mx-auto">
-                  <div className="bg-gray-50 p-4 rounded-lg mb-4">
-                    <p className="font-medium mb-2">Suggested questions:</p>
-                    <ul className="space-y-2">
-                      <li className="text-sm text-brand-purple cursor-pointer hover:underline">
-                        Can you explain this concept in simpler terms?
-                      </li>
-                      <li className="text-sm text-brand-purple cursor-pointer hover:underline">
-                        What are some practical applications of this?
-                      </li>
-                      <li className="text-sm text-brand-purple cursor-pointer hover:underline">
-                        What should I learn next after this?
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-                
-                <ChatWidget className="flex items-center justify-center mt-4" />
-              </div>
+              <ChatWidget className="w-full" />
             </TabsContent>
           </Tabs>
         )}
