@@ -16,25 +16,6 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ className }) => {
   
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Suggested actions
-  const suggestedActions = [
-    {
-      icon: <Plus size={14} />,
-      text: "Search",
-      action: "search"
-    },
-    {
-      icon: <Plus size={14} />,
-      text: "Deep research",
-      action: "research" 
-    },
-    {
-      icon: <Plus size={14} />,
-      text: "Create image",
-      action: "image"
-    }
-  ];
-
   // Questions or topics the user might be interested in
   const suggestedQuestions = [
     "What are the key concepts in this lesson?",
@@ -66,25 +47,6 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ className }) => {
     
     // Clear input
     setInputValue("");
-  };
-
-  const handleActionClick = (action: string) => {
-    let message = "";
-    switch(action) {
-      case "search":
-        message = "Searching for relevant information...";
-        break;
-      case "research":
-        message = "Initiating deeper research on this topic...";
-        break;
-      case "image":
-        message = "Creating visual representation of this concept...";
-        break;
-      default:
-        message = "Processing your request...";
-    }
-    
-    toast.info(message);
   };
 
   const handleQuestionClick = (question: string) => {
@@ -151,43 +113,22 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ className }) => {
           </div>
         </div>
 
-        {/* Suggested actions - shown when no input */}
+        {/* Suggested questions */}
         {!inputValue.trim() && (
-          <>
-            <div className="flex flex-wrap gap-2 justify-center mb-4">
-              {suggestedActions.map((action, idx) => (
+          <div className="mt-6">
+            <div className="text-sm text-gray-500 mb-3">Suggested questions:</div>
+            <div className="grid grid-cols-1 gap-2">
+              {suggestedQuestions.map((question, idx) => (
                 <button 
                   key={idx}
-                  onClick={() => handleActionClick(action.action)}
-                  className="flex items-center gap-2 px-4 py-2 rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 text-sm transition-colors"
+                  onClick={() => handleQuestionClick(question)}
+                  className="text-left p-3 rounded-lg bg-blue-50 dark:bg-gray-700 hover:bg-blue-100 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 text-sm transition-colors"
                 >
-                  <span className="w-5 h-5 flex items-center justify-center">
-                    {action.icon}
-                  </span>
-                  <span>{action.text}</span>
+                  {question}
                 </button>
               ))}
-              <button className="flex items-center gap-2 px-4 py-2 rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 text-sm transition-colors">
-                <span>···</span>
-              </button>
             </div>
-
-            {/* Suggested questions */}
-            <div className="mt-6">
-              <div className="text-sm text-gray-500 mb-3">Suggested questions:</div>
-              <div className="grid grid-cols-1 gap-2">
-                {suggestedQuestions.map((question, idx) => (
-                  <button 
-                    key={idx}
-                    onClick={() => handleQuestionClick(question)}
-                    className="text-left p-3 rounded-lg bg-blue-50 dark:bg-gray-700 hover:bg-blue-100 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 text-sm transition-colors"
-                  >
-                    {question}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </>
+          </div>
         )}
       </div>
     </div>
