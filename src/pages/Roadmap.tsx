@@ -34,10 +34,6 @@ const Roadmap = () => {
     );
   }
   
-  const handleSaveProgress = () => {
-    toast.success("Progress saved successfully!");
-  };
-  
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -72,11 +68,6 @@ const Roadmap = () => {
                   {Math.round(currentSkill.progress)}% Complete
                 </span>
               </div>
-            </div>
-            <div className="mt-4 md:mt-0">
-              <Button onClick={handleSaveProgress}>
-                Save Progress
-              </Button>
             </div>
           </div>
         </div>

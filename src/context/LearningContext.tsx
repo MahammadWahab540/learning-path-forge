@@ -111,6 +111,18 @@ export const LearningProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       learningStreak,
     };
     localStorage.setItem('learningData', JSON.stringify(learningData));
+    
+    // Show autosave toast only if we have skills data (meaning the user has started learning)
+    if (skills.length > 0) {
+      const debouncedToast = setTimeout(() => {
+        toast.success("Progress autosaved", {
+          id: "autosave-toast",
+          duration: 1500
+        });
+      }, 2000);
+      
+      return () => clearTimeout(debouncedToast);
+    }
   }, [careerGoal, skills, selectedSkills, level, preferredLanguage, learningStreak]);
 
   const generateRoadmap = async (params: { 
