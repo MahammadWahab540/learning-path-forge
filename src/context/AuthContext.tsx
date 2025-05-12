@@ -1,23 +1,26 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from "sonner";
+import { supabase } from '@/integrations/supabase/client';
+import { User, Session } from '@supabase/supabase-js';
 
-interface User {
+interface UserProfile {
   id: string;
   email: string;
   firstName: string;
   lastName: string;
-  avatar?: string; // Added avatar property as optional
+  avatar?: string;
 }
 
 interface AuthContextType {
-  user: User | null;
-  token: string | null;
+  user: UserProfile | null;
+  session: Session | null;
   isAuthenticated: boolean;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, firstName: string, lastName: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -31,52 +34,78 @@ export const useAuth = () => {
 };
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(null);
+  const [user, setUser] = useState<UserProfile | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
+  // Initialize auth and set up listener for auth changes
   useEffect(() => {
-    // Check if user is already logged in
-    const storedToken = localStorage.getItem('token');
-    const storedUser = localStorage.getItem('user');
-    
-    if (storedToken && storedUser) {
-      setToken(storedToken);
-      setUser(JSON.parse(storedUser));
-    }
-    
-    setLoading(false);
+    // Set up auth state listener FIRST to avoid missing events
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, currentSession) => {
+        setSession(currentSession);
+        
+        if (currentSession?.user) {
+          // Get user profile data from the current session
+          const { user: authUser } = currentSession;
+          
+          // Convert Supabase user to our UserProfile format
+          const userProfile: UserProfile = {
+            id: authUser.id,
+            email: authUser.email || '',
+            firstName: authUser.user_metadata?.first_name || '',
+            lastName: authUser.user_metadata?.last_name || '',
+            avatar: authUser.user_metadata?.avatar || '',
+          };
+          
+          setUser(userProfile);
+        } else {
+          setUser(null);
+        }
+      }
+    );
+
+    // THEN check for existing session
+    supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
+      setSession(currentSession);
+      
+      if (currentSession?.user) {
+        // Get user profile data from the current session
+        const { user: authUser } = currentSession;
+        
+        // Convert Supabase user to our UserProfile format
+        const userProfile: UserProfile = {
+          id: authUser.id,
+          email: authUser.email || '',
+          firstName: authUser.user_metadata?.first_name || '',
+          lastName: authUser.user_metadata?.last_name || '',
+          avatar: authUser.user_metadata?.avatar || '',
+        };
+        
+        setUser(userProfile);
+      }
+      
+      setLoading(false);
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   const login = async (email: string, password: string) => {
     try {
       setLoading(true);
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Mock login - in a real app, this would be an API call
-      if (password.length < 6) {
-        throw new Error('Invalid credentials');
-      }
-      
-      const mockUser = {
-        id: '123',
+      const { error } = await supabase.auth.signInWithPassword({
         email,
-        firstName: email.split('@')[0],
-        lastName: 'User',
-        avatar: '' // Initialize with empty string
-      };
+        password,
+      });
       
-      const mockToken = 'mock-jwt-token';
-      
-      // Save to localStorage
-      localStorage.setItem('token', mockToken);
-      localStorage.setItem('user', JSON.stringify(mockUser));
-      
-      // Update state
-      setUser(mockUser);
-      setToken(mockToken);
+      if (error) {
+        throw error;
+      }
       
       toast.success('Login successful');
       navigate('/select-path');
@@ -90,30 +119,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const register = async (email: string, password: string, firstName: string, lastName: string) => {
     try {
       setLoading(true);
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Mock registration - in a real app, this would be an API call
-      const mockUser = {
-        id: '123',
+      const { error } = await supabase.auth.signUp({
         email,
-        firstName,
-        lastName,
-        avatar: '' // Initialize with empty string
-      };
+        password,
+        options: {
+          data: {
+            first_name: firstName,
+            last_name: lastName,
+            avatar: '',
+          }
+        }
+      });
       
-      const mockToken = 'mock-jwt-token';
+      if (error) {
+        throw error;
+      }
       
-      // Save to localStorage
-      localStorage.setItem('token', mockToken);
-      localStorage.setItem('user', JSON.stringify(mockUser));
-      
-      // Update state
-      setUser(mockUser);
-      setToken(mockToken);
-      
-      toast.success('Registration successful');
-      navigate('/select-path');
+      toast.success('Registration successful. Please check your email to confirm your account.');
+      navigate('/login');
     } catch (error) {
       toast.error('Registration failed: ' + (error instanceof Error ? error.message : 'Unknown error'));
     } finally {
@@ -121,18 +145,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    setUser(null);
-    setToken(null);
-    navigate('/login');
+  const logout = async () => {
+    try {
+      await supabase.auth.signOut();
+      navigate('/login');
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
   };
 
   const value = {
     user,
-    token,
-    isAuthenticated: !!token,
+    session,
+    isAuthenticated: !!session,
     loading,
     login,
     register,
