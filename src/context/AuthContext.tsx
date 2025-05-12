@@ -21,6 +21,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, firstName: string, lastName: string) => Promise<void>;
   logout: () => Promise<void>;
+  updateProfile: (data: Partial<Omit<UserProfile, 'id' | 'email'>>) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -147,10 +148,58 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async () => {
     try {
-      await supabase.auth.signOut();
+      setLoading(true);
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        throw error;
+      }
+      
       navigate('/login');
+      toast.success('Logged out successfully');
     } catch (error) {
       console.error('Error signing out:', error);
+      toast.error('Logout failed: ' + (error instanceof Error ? error.message : 'Unknown error'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateProfile = async (data: Partial<Omit<UserProfile, 'id' | 'email'>>) => {
+    try {
+      setLoading(true);
+      
+      if (!user) {
+        throw new Error('No authenticated user');
+      }
+      
+      // Update user metadata in Supabase Auth
+      const { error: updateError } = await supabase.auth.updateUser({
+        data: {
+          first_name: data.firstName,
+          last_name: data.lastName,
+          avatar: data.avatar,
+        }
+      });
+      
+      if (updateError) {
+        throw updateError;
+      }
+      
+      // Update the local user state
+      setUser(prev => {
+        if (!prev) return null;
+        return {
+          ...prev,
+          ...data
+        };
+      });
+      
+      toast.success('Profile updated successfully');
+    } catch (error) {
+      toast.error('Profile update failed: ' + (error instanceof Error ? error.message : 'Unknown error'));
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -161,7 +210,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     loading,
     login,
     register,
-    logout
+    logout,
+    updateProfile
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

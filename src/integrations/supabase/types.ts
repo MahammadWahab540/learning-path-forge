@@ -171,6 +171,36 @@ export type Database = {
           },
         ]
       }
+      profiles: {
+        Row: {
+          avatar: string | null
+          created_at: string | null
+          first_name: string | null
+          id: string
+          last_name: string | null
+          preferred_language: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          avatar?: string | null
+          created_at?: string | null
+          first_name?: string | null
+          id: string
+          last_name?: string | null
+          preferred_language?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          avatar?: string | null
+          created_at?: string | null
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          preferred_language?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       roadmaps: {
         Row: {
           created_at: string | null
@@ -259,6 +289,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_learning_streaks: {
+        Row: {
+          created_at: string | null
+          id: string
+          last_activity_date: string | null
+          streak_count: number | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          last_activity_date?: string | null
+          streak_count?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          last_activity_date?: string | null
+          streak_count?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
       }
       user_lesson_progress: {
         Row: {
