@@ -8,6 +8,7 @@ import { useAuth } from '@/context/AuthContext';
 import Input from '@/components/Input';
 import Button from '@/components/Button';
 import { toast } from "sonner";
+import { supabase } from '@/integrations/supabase/client';
 
 // Define schemas for login and register
 const loginSchema = z.object({
@@ -72,8 +73,28 @@ const Auth = () => {
     }
   };
 
-  const handleGoogleAuth = () => {
-    toast.info("Google OAuth not implemented in this demo");
+  const handleGoogleAuth = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
+          redirectTo: window.location.origin + '/select-path'
+        }
+      });
+      
+      if (error) {
+        throw error;
+      }
+      
+      // No need for navigation here as it's handled by the OAuth redirect
+    } catch (error) {
+      console.error('Google authentication failed:', error);
+      toast.error('Google authentication failed: ' + (error instanceof Error ? error.message : 'Unknown error'));
+    }
   };
 
   return (
@@ -224,6 +245,7 @@ const Auth = () => {
               type="button"
               className="mt-4 w-full py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-blue"
               onClick={handleGoogleAuth}
+              disabled={loading}
             >
               <div className="flex items-center justify-center">
                 <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24">
